@@ -2,6 +2,7 @@
 #
 # RRD script to display cpufreq statistics
 # 2007 (c) by Christian Garbs <mitch@cgarbs.de>
+# 2011 (c) by Andreas Geisenhainer <psycorama@opensecure.de>
 # Licensed under GNU GPL.
 #
 # This script should be run every 5 minutes.
@@ -41,22 +42,24 @@ chomp $hostname;
 if ( ! -e $datafile ) {
     RRDs::create($datafile,
 		 '--step=60',
-		 'DS:state0:COUNTER:600:0:32000',
-		 'DS:state1:COUNTER:600:0:32000',
-		 'DS:state2:COUNTER:600:0:32000',
-		 'DS:state3:COUNTER:600:0:32000',
-		 'DS:state4:COUNTER:600:0:32000',
-		 'DS:state5:COUNTER:600:0:32000',
-		 'RRA:AVERAGE:0.5:1:600',
-		 'RRA:AVERAGE:0.5:6:700',
-		 'RRA:AVERAGE:0.5:24:775',
-		 'RRA:AVERAGE:0.5:288:797',
-		 );
-      
-      $ERR=RRDs::error;
-      die "ERROR while creating $datafile: $ERR\n" if $ERR;
-      print "created $datafile\n";
-  }
+		 'DS:state0:COUNTER:120:0:32000',
+		 'DS:state1:COUNTER:120:0:32000',
+		 'DS:state2:COUNTER:120:0:32000',
+		 'DS:state3:COUNTER:120:0:32000',
+		 'DS:state4:COUNTER:120:0:32000',
+		 'DS:state5:COUNTER:120:0:32000',
+		 "RRA:AVERAGE:0.5:1:70",    # hourly:  1min /w 70values  => 70 min
+		 "RRA:AVERAGE:0.5:5:140",   # daily : 5min /w 140values  => 29.16 hours
+		 "RRA:AVERAGE:0.5:15:700",  # weekly:  15m /w 700values  => ~7.3 days
+		 "RRA:AVERAGE:0.5:20:800",  # monthly: 1h /w 800values   => ~33.3 days
+		 "RRA:AVERAGE:0.5:360:1500", # yearly:  6h /w 1500values  => ~1year
+		 "RRA:AVERAGE:0.5:900:3000" # 5yearly:  15h /w 3000values => ~5year
+	);
+
+    $ERR=RRDs::error;
+    die "ERROR while creating $datafile: $ERR\n" if $ERR;
+    print "created $datafile\n";
+}
 
 # get data
 open STATS, '<', $stats or die "can't open `$stats': $!";
@@ -77,7 +80,7 @@ RRDs::update($datafile,
 	     );
 
 # draw pictures
-foreach ( [3600, 'hour'], [86400, 'day'], [604800, 'week'], [31536000, 'year'] ) {
+foreach ( [3600, 'hour'], [86400, 'day'], [604800, 'week'], [2678400, 'month'], [31536000, 'year'], [157680000, '5year'] ) {
     my ($time, $scale) = @{$_};
 
     my (@def, @area);
