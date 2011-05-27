@@ -20,14 +20,14 @@ my $datafile = "$conf{DBPATH}/cpufreq.rrd";
 my $picbase  = "$conf{OUTPATH}/cpufreq-";
 my $stats = '/sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state';
 my @colors = qw(
-                00F0B0
-                E00070
-                40D030
                 2020F0
+                700505
                 E0E000
-                00FF00
+                0FFFBF
                 0000FF
+                40D030
                 AAAAAA
+                00FF00
 		);
 
 # global error variable
@@ -55,7 +55,7 @@ if ( ! -e $datafile ) {
 		 "RRA:AVERAGE:0.5:360:1500", # yearly:  6h /w 1500values  => ~1year
 		 "RRA:AVERAGE:0.5:900:3000" # 5yearly:  15h /w 3000values => ~5year
 	);
-
+    
     $ERR=RRDs::error;
     die "ERROR while creating $datafile: $ERR\n" if $ERR;
     print "created $datafile\n";
