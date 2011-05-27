@@ -2,6 +2,7 @@
 #
 # RRD script to display disk usage
 # 2003,2007 (c) by Christian Garbs <mitch@cgarbs.de>
+# 2011 (c) by Andreas Geisenhainer <psycorama@opensecure.de> 
 # Licensed under GNU GPL.
 #
 # This script should be run every 5 minutes.
@@ -33,6 +34,7 @@ chomp $hostname;
 if ( ! -e $datafile ) {
     # max 100% for each value
     RRDs::create($datafile,
+		 '--step=600',
 		 'DS:disk00:GAUGE:600:0:100',
 		 'DS:disk01:GAUGE:600:0:100',
 		 'DS:disk02:GAUGE:600:0:100',
@@ -53,10 +55,11 @@ if ( ! -e $datafile ) {
 		 'DS:disk17:GAUGE:600:0:100',
 		 'DS:disk18:GAUGE:600:0:100',
 		 'DS:disk19:GAUGE:600:0:100',
-		 'RRA:AVERAGE:0.5:1:600',
-		 'RRA:AVERAGE:0.5:6:700',
-		 'RRA:AVERAGE:0.5:24:775',
-		 'RRA:AVERAGE:0.5:288:797'
+		 'RRA:AVERAGE:0.5:1:25',    # hourly:  5min /w 25values  => 90 min
+		 'RRA:AVERAGE:0.5:2:70',    # daily :  10min /w 70values => 29.16 hours
+		 'RRA:AVERAGE:0.5:10:350',  # weekly:  30m /w 350values  => ~7.3 days
+		 'RRA:AVERAGE:0.5:20:800',  # monthly: 1h /w 800values   => ~33.3 days
+		 'RRA:AVERAGE:0.5:360:1500' # yearly:  6h /w 1500values  => ~1year
 		 );
 
       $ERR=RRDs::error;
@@ -132,7 +135,7 @@ for my $idx ( 0..19 ) {
 }
 
 # draw pictures
-foreach ( [3600, 'hour'], [86400, 'day'], [604800, 'week'], [31536000, 'year'] ) {
+foreach ( [3600, 'hour'], [86400, 'day'], [604800, 'week'], [2678400 ,'month'], [31536000, 'year'] ) {
     my ($time, $scale) = @{$_};
     RRDs::graph($picbase . $scale . '.png',
 		"--start=-$time",

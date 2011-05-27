@@ -2,11 +2,13 @@
 #
 # RRD script to display system load
 # 2003 (c) by Christian Garbs <mitch@cgarbs.de>
+# 2011 (c) by Andreas Geisenhainer <psycorama@opensecure.de> 
 # Licensed under GNU GPL.
 #
 # This script should be run every 5 minutes.
 #
-# *ADDITIONALLY* data aquisition is done externally every minute:
+# *ADDITIONALLY* data aquisition is done externally every minute
+# with load.sh
 # rrdtool update $datafile N:$( PROCS=`echo /proc/[0-9]*|wc -w|tr -d ' '`; read L1 L2 L3 DUMMY < /proc/loadavg ; echo ${L1}:${L2}:${L3}:${PROCS} )
 #
 use strict;
@@ -37,11 +39,11 @@ if ( ! -e $datafile ) {
 		 "DS:load2:GAUGE:120:0:70000",
 		 "DS:load3:GAUGE:120:0:70000",
 		 "DS:procs:GAUGE:120:0:70000",
-	         "RRA:AVERAGE:0.5:1:120",
-		 "RRA:AVERAGE:0.5:5:600",
-		 "RRA:AVERAGE:0.5:30:700",
-		 "RRA:AVERAGE:0.5:120:775",
-		 "RRA:AVERAGE:0.5:1440:797",
+		 "RRA:AVERAGE:0.5:1:25",     # hourly:  5min /w 25values  => 90 min
+		 "RRA:AVERAGE:0.5:2:70",     # daily :  10min /w 70values => 29.16 hours
+		 "RRA:AVERAGE:0.5:10:350",   # weekly:  30m /w 350values  => ~7.3 days
+		 "RRA:AVERAGE:0.5:20:800",   # monthly: 1h /w 800values   => ~33.3 days
+		 "RRA:AVERAGE:0.5:360:1500", # yearly:  6h /w 1500values  => ~1year
 		 "RRA:MAX:0.5:1:120",
 		 "RRA:MAX:0.5:5:600",
 		 "RRA:MAX:0.5:6:700",
@@ -58,11 +60,8 @@ if ( ! -e $datafile ) {
       print "created $datafile\n";
   }
 
-# data aquisition is done externally every minute:
-# rrdtool update $datafile N:$( PROCS=`echo /proc/[0-9]*|wc -w|tr -d ' '`; read L1 L2 L3 DUMMY < /proc/loadavg ; echo ${L1}:${L2}:${L3}:${PROCS} )
-
 # draw pictures
-foreach ( [3600, "hour"], [86400, "day"], [604800, "week"], [31536000, "year"] ) {
+foreach ( [3600, "hour"], [86400, "day"], [604800, "week"], [2678400 ,'month'], [31536000, "year"] ) {
     my ($time, $scale) = @{$_};
     RRDs::graph($picbase . $scale . ".png",
 		"--start=-${time}",

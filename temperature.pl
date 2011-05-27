@@ -2,6 +2,7 @@
 #
 # RRD script to display hardware temperature
 # 2003,2007 (c) by Christian Garbs <mitch@cgarbs.de>
+# 2011 (c) by Andreas Geisenhainer <psycorama@opensecure.de> 
 # Licensed under GNU GPL.
 #
 # This script should be run every 5 minutes.
@@ -55,11 +56,13 @@ if ( ! -e $datafile ) {
 		 "DS:disk05:GAUGE:600:10:100",
 		 "DS:disk06:GAUGE:600:10:100",
 		 "DS:disk07:GAUGE:600:10:100",
-		 "RRA:AVERAGE:0.5:1:600",
-		 "RRA:AVERAGE:0.5:6:700",
-		 "RRA:AVERAGE:0.5:24:775",
-		 "RRA:AVERAGE:0.5:288:797"
+		 'RRA:AVERAGE:0.5:1:25',    # hourly:  5min /w 25values  => 90 min
+		 'RRA:AVERAGE:0.5:2:70',    # daily :  10min /w 70values => 29.16 hours
+		 'RRA:AVERAGE:0.5:10:350',  # weekly:  30m /w 350values  => ~7.3 days
+		 'RRA:AVERAGE:0.5:20:800',  # monthly: 1h /w 800values   => ~33.3 days
+		 'RRA:AVERAGE:0.5:360:1500' # yearly:  6h /w 1500values  => ~1year
 		 );
+
       $ERR=RRDs::error;
       die "ERROR while creating $datafile: $ERR\n" if $ERR;
       print "created $datafile\n";
@@ -101,7 +104,6 @@ while (my $line = <SENSORS>) {
 }
 close SENSORS, or die "can't close $sensors: $!\n";
 
-
 # prepare values
 sub getval($)
 {
@@ -136,7 +138,7 @@ $ERR=RRDs::error;
 die "ERROR while updating $datafile: $ERR\n" if $ERR;
 
 # draw pictures
-foreach ( [3600, "hour"], [86400, "day"], [604800, "week"], [31536000, "year"] ) {
+foreach ( [3600, "hour"], [86400, "day"], [604800, "week"], [2678400 ,'month'], [31536000, "year"] ) {
     my ($time, $scale) = @{$_};
     RRDs::graph($picbase . $scale . ".png",
 		"--start=-${time}",
@@ -151,28 +153,28 @@ foreach ( [3600, "hour"], [86400, "day"], [604800, "week"], [31536000, "year"] )
 		"DEF:fan0x=${datafile}:fan0:AVERAGE",
 		"DEF:fan1x=${datafile}:fan1:AVERAGE",
 		"DEF:fan2x=${datafile}:fan2:AVERAGE",
-#		"DEF:fan3x=${datafile}:fan3:AVERAGE",
+		"DEF:fan3x=${datafile}:fan3:AVERAGE",
 		"DEF:temp0=${datafile}:temp0:AVERAGE",
 		"DEF:temp1=${datafile}:temp1:AVERAGE",
 		"DEF:temp2=${datafile}:temp2:AVERAGE",
-#		"DEF:temp3=${datafile}:temp3:AVERAGE",
+		"DEF:temp3=${datafile}:temp3:AVERAGE",
 		"DEF:cpu0=${datafile}:cpu0:AVERAGE",
 		"DEF:cpu1=${datafile}:cpu1:AVERAGE",
-#		"DEF:cpu2=${datafile}:cpu2:AVERAGE",
-#		"DEF:cpu3=${datafile}:cpu3:AVERAGE",
+		"DEF:cpu2=${datafile}:cpu2:AVERAGE",
+		"DEF:cpu3=${datafile}:cpu3:AVERAGE",
 		"DEF:disk00=${datafile}:disk00:AVERAGE",
 		"DEF:disk01=${datafile}:disk01:AVERAGE",
 		"DEF:disk02=${datafile}:disk02:AVERAGE",
-#		"DEF:disk03=${datafile}:disk03:AVERAGE",
-#		"DEF:disk04=${datafile}:disk04:AVERAGE",
-#		"DEF:disk05=${datafile}:disk05:AVERAGE",
-#		"DEF:disk06=${datafile}:disk06:AVERAGE",
-#		"DEF:disk07=${datafile}:disk07:AVERAGE",
+		"DEF:disk03=${datafile}:disk03:AVERAGE",
+		"DEF:disk04=${datafile}:disk04:AVERAGE",
+		"DEF:disk05=${datafile}:disk05:AVERAGE",
+		"DEF:disk06=${datafile}:disk06:AVERAGE",
+		"DEF:disk07=${datafile}:disk07:AVERAGE",
 
-		'CDEF:fan0=fan0x,50,/',
-		'CDEF:fan1=fan1x,50,/',
-		'CDEF:fan2=fan2x,50,/',
-#		'CDEF:fan3=fan3x,50,/',
+		'CDEF:fan0=fan0x,100,/',
+		'CDEF:fan1=fan1x,100,/',
+		'CDEF:fan2=fan2x,100,/',
+		'CDEF:fan3=fan3x,100,/',
 
 #		'CDEF:fan1s=fan0,fan1,-,0,300,LIMIT',
 #		'CDEF:cpu1s=cpu0,cpu1,-',
@@ -192,7 +194,7 @@ foreach ( [3600, "hour"], [86400, "day"], [604800, "week"], [31536000, "year"] )
 #		'AREA:temp0#44444400',
 #		'STACK:temp1s#444444:board [°C]',
 
-		'LINE1:fan0#8888FF:fans [50rpm]',
+		'LINE1:fan0#8888FF:fans [100rpm]',
 		'LINE1:fan1#8888FF',
 		'LINE1:fan2#8888FF',
 
@@ -200,7 +202,7 @@ foreach ( [3600, "hour"], [86400, "day"], [604800, "week"], [31536000, "year"] )
 		'LINE2:disk00#0000FF:sda [°C]',
 		'LINE2:disk01#FFFF00:sdb [°C]',
 		'LINE2:disk02#FF0000:sdc [°C] ',
-#		'LINE2:disk03#00FF00:sdd [°C]',
+		'LINE2:disk03#00FF00:sdd [°C]',
 
 		'COMMENT:\n',
 		);
