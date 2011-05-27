@@ -12,13 +12,9 @@ eval(`cat ~/.rrd-conf.pl`);
 # set variables
 my $path     = $conf{OUTPATH};
 my @rrd      = @{$conf{MAKEHTML_MODULES}};
-my @time     = qw(hour day week year);
-
-# other files to include
-my @MORE     = qw(make_html.gz Makefile.gz sample.conf.gz);
+my @time     = qw(hour day week month year);
 
 sub insert_links($);
-
 
 foreach my $time (@time) {
     my $file = "$path/$time.html";
@@ -42,15 +38,7 @@ foreach my $time (@time) {
 
     insert_links($time);
 
-    print HTML "<p><small>Get the scripts here:";
-
-    opendir SCRIPTS, $path or die "can't opendir `$path': $!";
-    my %scripts_no_dups = map { $_ => 1 } ((sort grep /\.gz$/, readdir SCRIPTS), @MORE);
-    foreach my $script ( sort keys %scripts_no_dups ) {
-	    print HTML " <a href=\"$script\">$script</a>";
-    }
-    closedir SCRIPTS or die "can't closedir `$path': $!";
-
+    print HTML "<p><small>Get the scripts <a href='https://github.com/psycorama/rrd'>here</a>";
     print HTML "</p></body></html>";
 
     close HTML or  die "can't close `$file': $!";
