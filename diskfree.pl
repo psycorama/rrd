@@ -33,7 +33,7 @@ chomp $hostname;
 if ( ! -e $datafile ) {
     # max 100% for each value
     RRDs::create($datafile,
-		 '--step=600',
+		 '--step=300',
 		 'DS:disk00:GAUGE:600:0:100',
 		 'DS:disk01:GAUGE:600:0:100',
 		 'DS:disk02:GAUGE:600:0:100',

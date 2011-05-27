@@ -36,6 +36,7 @@ chomp $hostname;
 if ( ! -e $datafile ) {
     # max 9000 for fan, 100 for temperature
     RRDs::create($datafile,
+		 "--step=300",
 		 "DS:fan0:GAUGE:600:0:9000",
 		 "DS:fan1:GAUGE:600:0:9000",
 		 "DS:fan2:GAUGE:600:0:9000",
@@ -56,11 +57,12 @@ if ( ! -e $datafile ) {
 		 "DS:disk05:GAUGE:600:10:100",
 		 "DS:disk06:GAUGE:600:10:100",
 		 "DS:disk07:GAUGE:600:10:100",
-		 'RRA:AVERAGE:0.5:1:25',    # hourly:  5min /w 25values  => 90 min
-		 'RRA:AVERAGE:0.5:2:70',    # daily :  10min /w 70values => 29.16 hours
-		 'RRA:AVERAGE:0.5:10:350',  # weekly:  30m /w 350values  => ~7.3 days
-		 'RRA:AVERAGE:0.5:20:800',  # monthly: 1h /w 800values   => ~33.3 days
-		 'RRA:AVERAGE:0.5:360:1500' # yearly:  6h /w 1500values  => ~1year
+		 'RRA:AVERAGE:0.5:1:25',     # hourly:  5min /w 25values  => 90 min
+		 'RRA:AVERAGE:0.5:2:70',     # daily :  10min /w 70values => 29.16 hours
+		 'RRA:AVERAGE:0.5:10:350',   # weekly:  30m /w 350values  => ~7.3 days
+		 'RRA:AVERAGE:0.5:20:500',   # monthly: 100m /w 500values   => ~34.72 days
+		 'RRA:AVERAGE:0.5:75:1500',  # yearly:  6.25h /w 1500values  => ~1year
+		 'RRA:AVERAGE:0.5:360:1500'  # yearly:  30h /w 1500values  => ~5year
 		 );
 
       $ERR=RRDs::error;
@@ -138,7 +140,7 @@ $ERR=RRDs::error;
 die "ERROR while updating $datafile: $ERR\n" if $ERR;
 
 # draw pictures
-foreach ( [3600, "hour"], [86400, "day"], [604800, "week"], [2678400 ,'month'], [31536000, "year"] ) {
+foreach ( [3600, 'hour'], [86400, 'day'], [604800, 'week'], [2678400 ,'month'], [31536000, 'year'], [157680000, '5year'] ) {
     my ($time, $scale) = @{$_};
     RRDs::graph($picbase . $scale . ".png",
 		"--start=-${time}",
