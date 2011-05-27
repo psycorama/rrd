@@ -2,6 +2,7 @@
 #
 # RRD script to display disk usage
 # 2003,2007 (c) by Christian Garbs <mitch@cgarbs.de>
+# 2011 (c) by Andreas Geisenhainer <psycorama@opensecure.de>
 # Licensed under GNU GPL.
 #
 # This script should be run every 5 minutes.
