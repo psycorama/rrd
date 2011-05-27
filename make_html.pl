@@ -12,7 +12,7 @@ eval(`cat ~/.rrd-conf.pl`);
 # set variables
 my $path     = $conf{OUTPATH};
 my @rrd      = @{$conf{MAKEHTML_MODULES}};
-my @time     = qw(hour day week month year);
+my @time     = qw(hour day week month year 5year);
 
 sub insert_links($);
 
