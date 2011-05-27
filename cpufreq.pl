@@ -55,7 +55,7 @@ if ( ! -e $datafile ) {
 		 "RRA:AVERAGE:0.5:360:1500", # yearly:  6h /w 1500values  => ~1year
 		 "RRA:AVERAGE:0.5:900:3000" # 5yearly:  15h /w 3000values => ~5year
 	);
-    
+
     $ERR=RRDs::error;
     die "ERROR while creating $datafile: $ERR\n" if $ERR;
     print "created $datafile\n";
