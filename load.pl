@@ -2,7 +2,7 @@
 #
 # RRD script to display system load
 # 2003 (c) by Christian Garbs <mitch@cgarbs.de>
-# 2011 (c) by Andreas Geisenhainer <psycorama@opensecure.de> 
+# 2011 (c) by Andreas Geisenhainer <psycorama@opensecure.de>
 # Licensed under GNU GPL.
 #
 # This script should be run every 5 minutes.
@@ -39,11 +39,12 @@ if ( ! -e $datafile ) {
 		 "DS:load2:GAUGE:120:0:70000",
 		 "DS:load3:GAUGE:120:0:70000",
 		 "DS:procs:GAUGE:120:0:70000",
-		 "RRA:AVERAGE:0.5:1:25",     # hourly:  5min /w 25values  => 90 min
-		 "RRA:AVERAGE:0.5:2:70",     # daily :  10min /w 70values => 29.16 hours
-		 "RRA:AVERAGE:0.5:10:350",   # weekly:  30m /w 350values  => ~7.3 days
-		 "RRA:AVERAGE:0.5:20:800",   # monthly: 1h /w 800values   => ~33.3 days
+		 "RRA:AVERAGE:0.5:1:70",    # hourly:  1min /w 70values  => 70 min
+		 "RRA:AVERAGE:0.5:5:300",   # daily : 5min /w 300values  => 25 hours
+		 "RRA:AVERAGE:0.5:15:700",  # weekly:  15m /w 700values  => ~7.3 days
+		 "RRA:AVERAGE:0.5:20:800",  # monthly: 100m /w 800values   => ~34.7 days
 		 "RRA:AVERAGE:0.5:360:1500", # yearly:  6h /w 1500values  => ~1year
+		 "RRA:AVERAGE:0.5:900:3000", # 5yearly:  15h /w 3000values => ~5year
 		 "RRA:MAX:0.5:1:120",
 		 "RRA:MAX:0.5:5:600",
 		 "RRA:MAX:0.5:6:700",
@@ -61,7 +62,7 @@ if ( ! -e $datafile ) {
   }
 
 # draw pictures
-foreach ( [3600, "hour"], [86400, "day"], [604800, "week"], [2678400 ,'month'], [31536000, "year"] ) {
+foreach ( [3600, "hour"], [86400, "day"], [604800, "week"], [2678400 ,'month'], [31536000, "year"], [157680000, "5year"] ) {
     my ($time, $scale) = @{$_};
     RRDs::graph($picbase . $scale . ".png",
 		"--start=-${time}",
