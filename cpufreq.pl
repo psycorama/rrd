@@ -2,7 +2,7 @@
 #
 # RRD script to display cpufreq statistics
 # 2007 (c) by Christian Garbs <mitch@cgarbs.de>
-# 2011 (c) by Andreas Geisenhainer <psycorama@opensecure.de>
+# 2011,2012 (c) by Andreas Geisenhainer <psycorama@opensecure.de>
 # Licensed under GNU GPL.
 #
 # This script should be run every minute.
@@ -14,6 +14,7 @@ use RRDs;
 # parse configuration file
 my %conf;
 eval(`cat ~/.rrd-conf.pl`);
+die "~/.rrd-conf.pl contains the following erros:\n" . $@ if $@;
 
 # set variables
 my $datafile = "$conf{DBPATH}/cpufreq.rrd";
@@ -37,7 +38,6 @@ my $ERR;
 my $hostname = `/bin/hostname`;
 chomp $hostname;
 
-
 # generate database if absent
 if ( ! -e $datafile ) {
     RRDs::create($datafile,
@@ -49,10 +49,10 @@ if ( ! -e $datafile ) {
 		 'DS:state4:COUNTER:120:0:32000',
 		 'DS:state5:COUNTER:120:0:32000',
 		 "RRA:AVERAGE:0.5:1:70",    # hourly:  1min /w 70values  => 70 min
-		 "RRA:AVERAGE:0.5:5:300",   # daily : 5min /w 140values  => 29.16 hours
+		 "RRA:AVERAGE:0.5:5:300",   # daily : 5min /w 300values  => 25.83 hours
 		 "RRA:AVERAGE:0.5:15:700",  # weekly:  15m /w 700values  => ~7.3 days
 		 "RRA:AVERAGE:0.5:60:800",  # monthly: 1h /w 800values   => ~33.3 days
-		 "RRA:AVERAGE:0.5:360:1500", # yearly:  6h /w 1500values  => ~1year
+		 "RRA:AVERAGE:0.5:360:1500",# yearly:  6h /w 1500values  => ~1year
 		 "RRA:AVERAGE:0.5:900:3000" # 5yearly:  15h /w 3000values => ~5year
 	);
     
@@ -63,21 +63,16 @@ if ( ! -e $datafile ) {
 
 # get data
 open STATS, '<', $stats or die "can't open `$stats': $!";
-my @stats = ('U', 'U', 'U', 'U', 'U', 'U');
 my @name;
 while (my $line = <STATS>) {
     last if $. > 6;
     chomp $line;
-    my ($name, $stat) = split /\s+/, $line;
+    my ($name, $_) = split /\s+/, $line;
     push @name, $name;
-    $stats[$.-1] = $stat;
 }
 close STATS or die "can't close `$stats': $!";
 
-# update database
-RRDs::update($datafile,
-	     join ':', ('N', @stats),
-	     );
+# update is done in other file [ cpufreq_1m.pl ]
 
 # draw pictures
 foreach ( [3600, 'hour'], [86400, 'day'], [604800, 'week'], [2678400, 'month'], [31536000, 'year'], [157680000, '5year'] ) {

@@ -2,7 +2,7 @@
 #
 # RRD script to display hardware temperature
 # 2003,2007 (c) by Christian Garbs <mitch@cgarbs.de>
-# 2011 (c) by Andreas Geisenhainer <psycorama@opensecure.de> 
+# 2011,2012 (c) by Andreas Geisenhainer <psycorama@opensecure.de> 
 # Licensed under GNU GPL.
 #
 # This script should be run every 5 minutes.
@@ -14,6 +14,7 @@ use RRDs;
 # parse configuration file
 my %conf;
 eval(`cat ~/.rrd-conf.pl`);
+die "~/.rrd-conf.pl contains the following erros:\n" . $@ if $@;
 
 # set variables
 my $datafile = "$conf{DBPATH}/temperature.rrd";

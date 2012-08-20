@@ -2,6 +2,7 @@
 #
 # RRD script to display network statistics
 # 2003-2004 (c) by Christian Garbs <mitch@cgarbs.de>
+# 2011,2012 (c) by Andreas Geisenhainer <psycorama@opensecure.de>
 # Licensed under GNU GPL.
 #
 # This script should be run regularly.
@@ -14,6 +15,7 @@ use RRDs;
 # parse configuration file
 my %conf;
 eval(`cat ~/.rrd-conf.pl`);
+die "~/.rrd-conf.pl contains the following erros:\n" . $@ if $@;
 
 # set variables
 my $datafile_template = "$conf{DBPATH}/DEVICE.rrd";
@@ -27,8 +29,8 @@ my $ERR;
 my $hostname = `/bin/hostname`;
 chomp $hostname;
 
-# remove non-tuns
-@devices = grep { @{$_}[0] =~ /^tun/ } @devices;
+# remove non-tuns/taps, precisely all not starting with 't'
+@devices = grep { @{$_}[0] =~ /^t/ } @devices;
 
 # set up cache
 my (@def, @cdef, @line1, @line2);
@@ -104,7 +106,7 @@ foreach my $tun ( @devices ) {
 }
 
 # draw pictures
-foreach ( [3600, "hour"], [86400, "day"], [604800, "week"], [31536000, "year"] ) {
+foreach ( [3600, 'hour'], [86400, "day"], [604800, "week"], [2678400 ,'month'], [31536000, "year"], [157680000, "5year"] ) {
     my ($time, $scale) = @{$_};
     RRDs::graph($picbase . $scale . ".png",
 		"--start=-${time}",

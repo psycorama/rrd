@@ -16,6 +16,7 @@ use RRDs;
 # parse configuration file
 my %conf;
 eval(`cat ~/.rrd-conf.pl`);
+die "~/.rrd-conf.pl contains the following erros:\n" . $@ if $@;
 
 # set variables
 my $datafile = "$conf{DBPATH}/dnscache.rrd";

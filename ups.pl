@@ -2,6 +2,7 @@
 #
 # RRD script to display ups values
 # 2003 (c) by Christian Garbs <mitch@cgarbs.de>
+# 2012 (c) by Andreas Geisenhainer <psycorama@opensecure.de>
 # Licensed under GNU GPL.
 #
 # This script should be run every 5 minutes.
@@ -13,6 +14,7 @@ use RRDs;
 # parse configuration file
 my %conf;
 eval(`cat ~/.rrd-conf.pl`);
+die "~/.rrd-conf.pl contains the following erros:\n" . $@ if $@;
 
 # Configurable stuff here
 my $datafile = "$conf{DBPATH}/ups.rrd";
