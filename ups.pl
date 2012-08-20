@@ -14,7 +14,7 @@ use RRDs;
 # parse configuration file
 my %conf;
 eval(`cat ~/.rrd-conf.pl`);
-die "~/.rrd-conf.pl contains the following erros:\n" . $@ if $@;
+die "~/.rrd-conf.pl contains the following errors:\n" . $@ if $@;
 
 # Configurable stuff here
 my $datafile = "$conf{DBPATH}/ups.rrd";
