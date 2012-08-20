@@ -49,7 +49,7 @@ if ( ! -e $datafile ) {
 		 'DS:state4:COUNTER:120:0:32000',
 		 'DS:state5:COUNTER:120:0:32000',
 		 "RRA:AVERAGE:0.5:1:70",    # hourly:  1min /w 70values  => 70 min
-		 "RRA:AVERAGE:0.5:5:300",   # daily : 5min /w 300values  => 25.83 hours
+		 "RRA:AVERAGE:0.5:5:140",   # daily : 5min /w 140values  => 29.16 hours
 		 "RRA:AVERAGE:0.5:15:700",  # weekly:  15m /w 700values  => ~7.3 days
 		 "RRA:AVERAGE:0.5:60:800",  # monthly: 1h /w 800values   => ~33.3 days
 		 "RRA:AVERAGE:0.5:360:1500",# yearly:  6h /w 1500values  => ~1year
