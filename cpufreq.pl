@@ -63,16 +63,21 @@ if ( ! -e $datafile ) {
 
 # get data
 open STATS, '<', $stats or die "can't open `$stats': $!";
+my @stats = ('U', 'U', 'U', 'U', 'U', 'U');
 my @name;
 while (my $line = <STATS>) {
     last if $. > 6;
     chomp $line;
-    my ($name, $_) = split /\s+/, $line;
+    my ($name, $stat) = split /\s+/, $line;
     push @name, $name;
+    $stats[$.-1] = $stat;
 }
 close STATS or die "can't close `$stats': $!";
 
-# update is done in other file [ cpufreq_1m.pl ]
+# update database
+RRDs::update($datafile,
+	     join ':', ('N', @stats),
+	     );
 
 # draw pictures
 foreach ( [3600, 'hour'], [86400, 'day'], [604800, 'week'], [2678400, 'month'], [31536000, 'year'], [157680000, '5year'] ) {
